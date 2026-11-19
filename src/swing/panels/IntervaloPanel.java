@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -25,9 +27,11 @@ public class IntervaloPanel extends JPanel{
 	private JLabel moedasLabel;
 	
 	//Inventario Panel
+	//TODO
+	//Vai ter que trocar esses dois arrays pra list porque o tamanho deles vai ficar mudando
 	private JLabel inventarioLabel;
-	private JLabel[] itensInventarioLabel;
-	private JButton[] usarItemButton;
+	private List<JLabel> itensInventarioLabel;
+	private List<JButton> usarItemButton;
 	private JLabel vidaLabel;
 	private JLabel energiaLabel;
 	
@@ -54,8 +58,8 @@ public class IntervaloPanel extends JPanel{
 		CardLayout principalLayout = new CardLayout();
 		principalPanel = new JPanel(principalLayout);
 		
-		itensLojaLabel = new JLabel[intervalo.getItens().size()];
-		lojaButtons = new JButton[intervalo.getItens().size()];
+		itensLojaLabel = new JLabel[intervalo.getLoja().size()];
+		lojaButtons = new JButton[intervalo.getLoja().size()];
 		
 		lojaPanel = new JPanel();
 		inventarioPanel = new JPanel();
@@ -98,7 +102,7 @@ public class IntervaloPanel extends JPanel{
 		EstadoJogo estado = intervalo.jogadorAgirCompra(item, partida);
 		
 		if(estado == EstadoJogo.ACAO_INVALIDA) {
-			JOptionPane.showMessageDialog(this, partida.getRodadaAtual().getMensagem());
+			JOptionPane.showMessageDialog(this, intervalo.getMensagem());
 			return;
 		}
 		
@@ -124,14 +128,18 @@ public class IntervaloPanel extends JPanel{
 		inventarioPanel.add(vidaLabel);
 		inventarioPanel.add(energiaLabel);
 		
-		for(int i = 0; i < itensLojaLabel.length; i++) {
-			int item = i + 1;
+		itensInventarioLabel = new ArrayList<JLabel>();
+		usarItemButton = new ArrayList<JButton>();
+		
+		for(int i = 0; i < itensInventarioLabel.size(); i++) {
+			int item = i;
 			
-			itensInventarioLabel[i] = new JLabel(partida.getJogador().getClasse().getInventario().get(i).getDescricao());
-			lojaPanel.add(itensLojaLabel[i]);
-			lojaButtons[i] = new JButton("Usar");
-			lojaPanel.add(lojaButtons[i]);
-			lojaButtons[i].addActionListener(e -> jogadorEscolheuItemUsar(item));
+			itensInventarioLabel.add(new JLabel(partida.getJogador().getClasse().getInventario().get(i).getDescricao()));
+			inventarioPanel.add(itensInventarioLabel.get(i));
+			
+			usarItemButton.add(new JButton("Usar"));
+			inventarioPanel.add(usarItemButton.get(i));
+			usarItemButton.get(i).addActionListener(e -> jogadorEscolheuItemUsar(item));
 		}
 	}
 	
@@ -139,11 +147,31 @@ public class IntervaloPanel extends JPanel{
 		EstadoJogo estado = intervalo.jogadorAgirUsar(item, partida);
 		
 		if(estado == EstadoJogo.ACAO_INVALIDA) {
-			JOptionPane.showMessageDialog(this, partida.getRodadaAtual().getMensagem());
+			JOptionPane.showMessageDialog(this, intervalo.getMensagem());
 			return;
 		}
 		
 		atualizarInventario();
+	}
+
+	private void atualizarInventario() {
+		
+		itensInventarioLabel.clear();
+		usarItemButton.clear();
+		
+		for(int i = 0; i < itensInventarioLabel.size(); i++) {
+			int item = i;
+			
+			itensInventarioLabel.add(new JLabel(partida.getJogador().getClasse().getInventario().get(i).getDescricao()));
+			inventarioPanel.add(itensInventarioLabel.get(i));
+			
+			usarItemButton.add(new JButton("Usar"));
+			inventarioPanel.add(usarItemButton.get(i));
+			usarItemButton.get(i).addActionListener(e -> jogadorEscolheuItemUsar(item));
+		}
+		
+		vidaLabel.setText("VIDA : " + (int) partida.getJogador().getClasse().getVidaAtual());
+		energiaLabel.setText("ENERGIA : " + (int) partida.getJogador().getClasse().getEnergiaAtual());
 	}
 
 	public Intervalo getIntervalo() {

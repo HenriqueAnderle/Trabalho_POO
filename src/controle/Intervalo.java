@@ -22,6 +22,7 @@ public class Intervalo {
 
 	private List<Item> loja;
 	private List<Item> itens;
+	private String mensagem;
 	
 	public Intervalo() {
 		loja = new ArrayList<Item>();
@@ -46,13 +47,24 @@ public class Intervalo {
 	public List<Item> getItens() {
 		return itens;
 	}
-
-	public void setItens(List<Item> itens) {
-		this.itens = itens;
-	}
 	
+	public String getMensagem() {
+		return mensagem;
+	}
+
+	public void setMensagem(String mensagem) {
+		this.mensagem = mensagem;
+	}
+
 	public EstadoJogo jogadorAgirCompra(int item, Partida partida) {
 		if(comprarItens(item, partida) == false) {
+			return EstadoJogo.ACAO_INVALIDA;
+		}
+		return EstadoJogo.ACAO_REALIZADA;
+	}
+	
+	public EstadoJogo jogadorAgirUsar(int item, Partida partida) {
+		if(usarItens(item, partida) == false) {
 			return EstadoJogo.ACAO_INVALIDA;
 		}
 		return EstadoJogo.ACAO_REALIZADA;
@@ -67,24 +79,41 @@ public class Intervalo {
 					break;
 					
 				case 2:
-					System.out.println(loja.get(0).getClass().getName());
 					loja.get(1).comprarItem(partida.getJogador(), loja.get(1));
 					break;
 					
 				case 3:
-					System.out.println(loja.get(0).getClass().getName());
 					loja.get(2).comprarItem(partida.getJogador(), loja.get(2));
 					break;
 					
 				case 4:
-					System.out.println(loja.get(0).getClass().getName());
 					loja.get(3).comprarItem(partida.getJogador(), loja.get(3));
 					break;
 			}
-		}catch(SemDinheiroException semDinheiroException) {
+		}catch(SemDinheiroException e) {
+			mensagem = e.getMessage();
 			return false;
 		}
 		return true;
+	}
+	
+	public boolean usarItens(int item, Partida partida) {
+		
+		if(!partida.getJogador().getClasse().getInventario().isEmpty()) {
+					
+			try {
+				partida.getJogador().getClasse().getInventario().get(item).usarItem(partida.getJogador(), partida.getJogador());
+				partida.getJogador().getClasse().removerItem(partida.getJogador().getClasse().getInventario().get(item));
+			}catch(VidaEnergiaCheiaException e) {
+				mensagem = e.getMessage();
+				return false;
+			}
+					
+			return true;
+		}else {
+			mensagem = new InventarioVazioException().getMessage();
+			return false;
+		}
 	}
 	
 	public int calcularQuantidadeInventario(Partida partida, Item item) {
