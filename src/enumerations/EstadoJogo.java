@@ -1,0 +1,6 @@
+package enumerations;
+
+public enum EstadoJogo {
+
+	ACAO_INVALIDA, ACAO_REALIZADA, AGUARDANDO_ACAO_JOGADOR, VITORIA_RODADA, VITORIA_FINAL, DERROTA
+}
